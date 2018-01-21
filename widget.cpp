@@ -55,7 +55,7 @@ void Widget::mouseReleaseEvent(QMouseEvent *event)
 	pp.drawPoint(end);
 	double dx = abs(end.x()-begin.x());
 	double dy = abs(end.y()-begin.y())*0.5771;
-	double cof = xiaomi4Cof; //距离转按压时间的比例系数
+	double cof = mate7Cof; //距离转按压时间的比例系数
 	QString cmd = QString("adb shell input swipe 100 100 100 100 %1").arg(int(cof*sqrt(dx*dx+dy*dy)+0.5));
 	qDebug() << cmd;
 	process.execute(cmd);
