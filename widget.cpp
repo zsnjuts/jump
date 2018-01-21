@@ -1,5 +1,6 @@
 #include "widget.h"
 #include "ui_widget.h"
+#include <cmath>
 
 Widget::Widget(QWidget *parent) :
 	QWidget(parent),
@@ -41,7 +42,13 @@ void Widget::mouseReleaseEvent(QMouseEvent *event)
 		return;
 	end = event->localPos();
 	qDebug() << "end=" << end;
-	QString cmd = QString("adb shell input swipe 100 100 100 100 %1").arg(int(0.5+3.6*abs(end.x()-begin.x())));
+	QPainter pp(&pixmap);
+	pp.setPen(QPen(Qt::red, 10));
+	pp.drawPoint(end);
+	double dx = abs(end.x()-begin.x());
+	double dy = abs(end.y()-begin.y())*0.5771;
+	double cof = 3.3; //距离转按压时间的比例系数（实测应该比3.3稍微大一些，即应该点在略比中心点更远一侧）
+	QString cmd = QString("adb shell input swipe 100 100 100 100 %1").arg(int(cof*sqrt(dx*dx+dy*dy)+0.5));
 	qDebug() << cmd;
 	process.execute(cmd);
 }
