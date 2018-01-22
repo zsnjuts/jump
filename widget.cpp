@@ -22,6 +22,8 @@ Widget::Widget(QWidget *parent) :
 	QImage img = QImage("jump.png").scaledToWidth(500);
 	pixmap = QPixmap::fromImage(img);
 	setFixedSize(img.width(), img.height());
+
+	cof = xiaomi4Cof;
 }
 
 Widget::~Widget()
@@ -34,6 +36,15 @@ void Widget::paintEvent(QPaintEvent *event)
 	Q_UNUSED(event);
 	QPainter painter(this);
 	painter.drawPixmap(0, 0, pixmap);
+
+	painter.setPen(Qt::black);
+	QFont font;
+	font.setFamily("Microsoft YaHei");
+	font.setPointSize(10);
+	painter.setFont(font);
+	painter.drawText(QPointF(10,20), QString("在小人底部中心点下左键,拖动到目标位置后放开"));
+	painter.drawText(QPointF(10,40), QString("每一步跳完之后按空格键更新屏幕"));
+	painter.drawText(QPointF(10,60), QString("cof=%1 (数字越大跳得越远,左右键大幅调整,上下键小幅调整)").arg(cof));
 }
 
 void Widget::mousePressEvent(QMouseEvent *event)
@@ -50,12 +61,8 @@ void Widget::mouseReleaseEvent(QMouseEvent *event)
 		return;
 	end = event->localPos();
 	qDebug() << "end=" << end;
-	QPainter pp(&pixmap);
-	pp.setPen(QPen(Qt::red, 10));
-	pp.drawPoint(end);
 	double dx = abs(end.x()-begin.x());
 	double dy = abs(end.y()-begin.y())*0.5771;
-	double cof = mate7Cof; //距离转按压时间的比例系数
 	QString cmd = QString("adb shell input swipe 100 100 100 100 %1").arg(int(cof*sqrt(dx*dx+dy*dy)+0.5));
 	qDebug() << cmd;
 	process.execute(cmd);
@@ -71,5 +78,18 @@ void Widget::keyPressEvent(QKeyEvent *event)
 		pixmap = QPixmap::fromImage(img);
 		setFixedSize(img.width(), img.height());
 		update();
+	}
+	else
+	{
+		switch(event->key())
+		{
+		case Qt::Key_Left: cof -= 0.1; break;
+		case Qt::Key_Right: cof += 0.1; break;
+		case Qt::Key_Up: cof += 0.01; break;
+		case Qt::Key_Down: cof -= 0.01; break;
+		default: ;
+		}
+		update();
+		qDebug() << QString("cof=%1").arg(cof) << endl;
 	}
 }

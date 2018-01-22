@@ -35,6 +35,7 @@ private:
 	QPointF begin;
 	QPointF end;
 	QProcess process;
+	double cof; //距离转按压时间的比例系数
 };
 
 #endif // WIDGET_H
